@@ -473,9 +473,7 @@ pub fn build(b: *std.Build) !void {
         });
     }
     if (target_info.target.os.tag == .windows) {
-        libfipsmodule.defineCMacro("OPENSSL_NO_ASM", null);
-        libfipsmodule.defineCMacro("WIN32_LEAN_AND_MEAN", null);
-        libfipsmodule.linkLibrary(winpthreads_dep.artifact("winpthreads"));
+        addWindowsOptions(libfipsmodule, winpthreads_dep);
     }
     b.installArtifact(libfipsmodule);
 
@@ -486,9 +484,7 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
     });
     if (target_info.target.os.tag == .windows) {
-        libcrypto.defineCMacro("OPENSSL_NO_ASM", null);
-        libcrypto.defineCMacro("WIN32_LEAN_AND_MEAN", null);
-        libcrypto.linkLibrary(winpthreads_dep.artifact("winpthreads"));
+        addWindowsOptions(libcrypto, winpthreads_dep);
         libcrypto.linkSystemLibrary("ws2_32");
     }
     libcrypto.linkLibC();
@@ -528,9 +524,7 @@ pub fn build(b: *std.Build) !void {
         });
     }
     if (target_info.target.os.tag == .windows) {
-        libssl.defineCMacro("OPENSSL_NO_ASM", null);
-        libssl.defineCMacro("WIN32_LEAN_AND_MEAN", null);
-        libssl.linkLibrary(winpthreads_dep.artifact("winpthreads"));
+        addWindowsOptions(libssl, winpthreads_dep);
     }
     b.installArtifact(libssl);
 
@@ -550,9 +544,7 @@ pub fn build(b: *std.Build) !void {
         });
     }
     if (target_info.target.os.tag == .windows) {
-        libdecrepit.defineCMacro("OPENSSL_NO_ASM", null);
-        libdecrepit.defineCMacro("WIN32_LEAN_AND_MEAN", null);
-        libdecrepit.linkLibrary(winpthreads_dep.artifact("winpthreads"));
+        addWindowsOptions(libdecrepit, winpthreads_dep);
     }
     b.installArtifact(libdecrepit);
 
@@ -573,9 +565,7 @@ pub fn build(b: *std.Build) !void {
         });
     }
     if (target_info.target.os.tag == .windows) {
-        libpki.defineCMacro("OPENSSL_NO_ASM", null);
-        libpki.defineCMacro("WIN32_LEAN_AND_MEAN", null);
-        libpki.linkLibrary(winpthreads_dep.artifact("winpthreads"));
+        addWindowsOptions(libpki, winpthreads_dep);
     }
     b.installArtifact(libpki);
 
@@ -596,9 +586,7 @@ pub fn build(b: *std.Build) !void {
         });
     }
     if (target_info.target.os.tag == .windows) {
-        bssl.defineCMacro("OPENSSL_NO_ASM", null);
-        bssl.defineCMacro("WIN32_LEAN_AND_MEAN", null);
-        bssl.linkLibrary(winpthreads_dep.artifact("winpthreads"));
+        addWindowsOptions(bssl, winpthreads_dep);
     }
     b.installArtifact(bssl);
 
@@ -612,4 +600,13 @@ pub fn build(b: *std.Build) !void {
 
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_tests.step);
+}
+
+inline fn addWindowsOptions(
+    artifact: *std.Build.Step.Compile,
+    winpthread: *std.Build.Dependency,
+) void {
+    artifact.defineCMacro("OPENSSL_NO_ASM", null);
+    artifact.defineCMacro("WIN32_LEAN_AND_MEAN", null);
+    artifact.linkLibrary(winpthread.artifact("winpthreads"));
 }
